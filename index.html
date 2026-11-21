@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Indo — Nonton TV Indonesia Gratis</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+<link rel="stylesheet" href="style.css">
+<script src="hls.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">📺 <span>TV Indo</span> <small>live streaming gratis</small></div>
+  <div class="top-controls">
+    <input id="search" type="search" placeholder="Cari channel… (mis: ANTV)" autocomplete="off">
+    <select id="sourceSelect" title="Sumber playlist">
+      <option value="id">🇮🇩 Indonesia</option>
+      <option value="global">🌍 Global (iptv-org)</option>
+      <option value="custom">🔗 URL sendiri…</option>
+    </select>
+    <input id="customUrl" type="url" placeholder="Tempel URL file .m3u di sini lalu Enter" hidden>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-head">Kategori <span id="totalCount"></span></div>
+    <ul id="catList"></ul>
+    <div class="side-foot">
+      <label>EPG (jadwal acara, opsional)</label>
+      <input id="epgUrl" type="url" placeholder="URL file XMLTV (.xml)">
+      <button id="epgBtn" class="btn small">Muat EPG</button>
+      <p class="hint">Playlist: <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener">iptv-org</a> (gratis, FTA). Sebagian channel mungkin gagal diputar di browser karena aturan CORS servernya — pakai tombol “Salin URL” lalu buka di VLC.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="player-wrap">
+      <video id="video" controls playsinline poster=""></video>
+      <div id="playerError" class="player-error" hidden>
+        <b>Channel ini tidak bisa diputar di browser.</b>
+        <span id="playerErrorDetail"></span>
+        <div class="err-actions">
+          <button id="retryBtn" class="btn">🔄 Coba lagi</button>
+          <button id="copyUrlBtn" class="btn">📋 Salin URL stream</button>
+        </div>
+        <small>Tips: buka URL yang disalin di VLC (Media → Open Network Stream). Beberapa server stream menolak diputar dari website (CORS).</small>
+      </div>
+      <div class="now-playing">
+        <div class="np-info">
+          <img id="npLogo" alt="" hidden>
+          <div>
+            <div id="npName" class="np-name">Pilih channel untuk mulai nonton</div>
+            <div id="npMeta" class="np-meta"></div>
+            <div id="npEpg" class="np-epg"></div>
+          </div>
+        </div>
+        <div class="np-actions">
+          <button id="favBtn" class="btn" title="Simpan ke favorit">☆ Favorit</button>
+          <span id="lineBox" class="line-box" hidden></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="chips" id="chips"></div>
+    <section class="grid" id="grid"></section>
+    <div id="status" class="status">Memuat playlist Indonesia…</div>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
