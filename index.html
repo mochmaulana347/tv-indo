@@ -4,15 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TV Indo — Nonton TV Indonesia Gratis</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+<meta name="description" content="TV Indo — nonton TV Indonesia gratis langsung dari browser. 173 channel: RCTI, SCTV, Indosiar, GTV, ANTV, Metro TV, CNN Indonesia, TVRI, dan banyak lagi.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FF3B30'/%3E%3Cstop offset='1' stop-color='%23FF7A00'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M26 20l18 12-18 12z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="style.css">
 <script src="hls.min.js"></script>
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">📺 <span>TV Indo</span> <small>live streaming gratis</small></div>
+  <div class="brand">
+    <span class="logo-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="url(#bg)"/><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF3B30"/><stop offset="1" stop-color="#FF7A00"/></linearGradient></defs><path d="M26 20l18 12-18 12z" fill="#fff"/></svg></span>
+    <span class="wordmark">TV <b>INDO</b></span>
+    <small>live streaming gratis</small>
+  </div>
   <div class="top-controls">
-    <input id="search" type="search" placeholder="Cari channel… (mis: ANTV)" autocomplete="off">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.8-3.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="search" type="search" placeholder="Cari channel… (mis: ANTV)" autocomplete="off">
+    </div>
     <select id="sourceSelect" title="Sumber playlist">
       <option value="id">🇮🇩 Indonesia</option>
       <option value="global">🌍 Global (iptv-org)</option>
@@ -30,13 +39,15 @@
       <label>EPG (jadwal acara, opsional)</label>
       <input id="epgUrl" type="url" placeholder="URL file XMLTV (.xml)">
       <button id="epgBtn" class="btn small">Muat EPG</button>
-      <p class="hint">Playlist: <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener">iptv-org</a> (gratis, FTA). Sebagian channel mungkin gagal diputar di browser karena aturan CORS servernya — pakai tombol “Salin URL” lalu buka di VLC.</p>
+      <p class="hint">Playlist: <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener">iptv-org</a> (gratis, FTA). Sebagian channel mungkin gagal diputar di browser karena aturan CORS servernya — pakai tombol “Salin URL” lalu buka di VLC, atau tunggu versi APK.</p>
     </div>
   </aside>
 
   <main class="main">
     <section class="player-wrap">
-      <video id="video" controls playsinline poster=""></video>
+      <div class="video-box">
+        <video id="video" controls playsinline poster=""></video>
+      </div>
       <div id="playerError" class="player-error" hidden>
         <b>Channel ini tidak bisa diputar di browser.</b>
         <span id="playerErrorDetail"></span>
@@ -48,25 +59,34 @@
       </div>
       <div class="now-playing">
         <div class="np-info">
-          <img id="npLogo" alt="" hidden>
-          <div>
-            <div id="npName" class="np-name">Pilih channel untuk mulai nonton</div>
+          <span class="np-logo-wrap"><img id="npLogo" alt="" hidden></span>
+          <div class="np-text">
+            <div class="np-title-row">
+              <span id="npName" class="np-name">Pilih channel untuk mulai nonton</span>
+              <span id="liveBadge" class="live-badge" hidden><i></i>LIVE</span>
+            </div>
             <div id="npMeta" class="np-meta"></div>
             <div id="npEpg" class="np-epg"></div>
           </div>
         </div>
         <div class="np-actions">
-          <button id="favBtn" class="btn" title="Simpan ke favorit">☆ Favorit</button>
+          <button id="favBtn" class="btn fav-btn" title="Simpan ke favorit">☆ Favorit</button>
           <span id="lineBox" class="line-box" hidden></span>
         </div>
       </div>
     </section>
 
+    <div class="section-head"><h2>Semua Channel</h2><span id="gridCount" class="grid-count"></span></div>
     <div class="chips" id="chips"></div>
     <section class="grid" id="grid"></section>
     <div id="status" class="status">Memuat playlist Indonesia…</div>
   </main>
 </div>
+
+<footer class="foot">
+  <span><b>TV Indo</b> — TV Indonesia gratis, langsung dari browser. Playlist oleh <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener">iptv-org</a>.</span>
+  <span class="foot-note">Versi APK lagi disiapkan 📱</span>
+</footer>
 
 <script src="app.js"></script>
 </body>

@@ -188,6 +188,7 @@
   function renderGrid() {
     var list = filtered();
     grid.innerHTML = '';
+    document.getElementById('gridCount').textContent = list.length ? list.length + ' channel' : '';
     if (!list.length) {
       statusEl.textContent = channels.length
         ? 'Tidak ada channel yang cocok. Coba kata kunci atau kategori lain.'
@@ -225,6 +226,7 @@
     currentLines = channels.filter(function (c) { return c.name === ch.name; });
     currentLineIdx = Math.max(0, currentLines.indexOf(ch));
     playerError.hidden = true;
+    document.getElementById('liveBadge').hidden = false;
     destroyHls();
     var url = ch.url;
     document.getElementById('npName').textContent = ch.name;
@@ -260,6 +262,7 @@
   function showPlayerError(msg) {
     playerErrorDetail.textContent = msg;
     playerError.hidden = false;
+    document.getElementById('liveBadge').hidden = true;
   }
   function renderLineBox() {
     var box = document.getElementById('lineBox');
@@ -297,6 +300,10 @@
     statusEl.textContent = 'Memuat playlist…';
     statusEl.hidden = false;
     grid.innerHTML = '';
+    // skeleton loading biar kelihatan hidup
+    var sk = '';
+    for (var s = 0; s < 12; s++) sk += '<div class="card skeleton"><div class="sk-logo"></div><div class="sk-line"></div><div class="sk-line short"></div></div>';
+    grid.innerHTML = sk;
     fetch(url)
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
       .then(function (text) {
