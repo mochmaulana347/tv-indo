@@ -89,14 +89,22 @@ module.exports = async (req, res) => {
   }
 
   const ct = (upstream.headers.get('content-type') || '').toLowerCase();
-  const isManifest = ct.includes('mpegurl') || /\.m3u8(\?|$)/i.test(target.pathname);
+  const maybeManifest = ct.includes('mpegurl') || /\.m3u8(\?|$)/i.test(target.pathname);
 
-  if (isManifest) {
+  if (maybeManifest) {
     let text;
     try { text = await upstream.text(); } catch (e) { res.statusCode = 502; res.end('Gagal baca manifest'); return; }
-    res.statusCode = upstream.status;
-    res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
-    res.end(rewriteManifest(text, target.toString()));
+    if (text.trimStart().startsWith('#EXTM3U')) {
+      res.statusCode = upstream.status;
+      res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
+      res.end(rewriteManifest(text, target.toString()));
+    } else {
+      // Server mengembalikan bukan-manifest (mis. halaman error HTML) — teruskan
+      // apa adanya, JANGAN di-rewrite (dulu halaman HTML ikut ditulis ulang jadi sampah).
+      res.statusCode = upstream.status;
+      if (ct) res.setHeader('Content-Type', upstream.headers.get('content-type'));
+      res.end(text);
+    }
     return;
   }
 
