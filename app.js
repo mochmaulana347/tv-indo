@@ -27,9 +27,12 @@
   var activeCat = 'Semua';
   var activeFavOnly = false;
   var current = null;        // channel yang sedang diputar
+  var currentViaProxy = false; // true kalau stream sedang lewat /api/proxy
   var currentLines = [];     // semua URL untuk nama yang sama
   var currentLineIdx = 0;
   var hls = null;
+
+  function proxyUrl(url) { return '/api/proxy?url=' + encodeURIComponent(url); }
 
   function favs() {
     try { return JSON.parse(localStorage.getItem(LS.fav) || '[]'); } catch (e) { return []; }
@@ -221,16 +224,17 @@
   function destroyHls() {
     if (hls) { try { hls.destroy(); } catch (e) {} hls = null; }
   }
-  function play(ch) {
+  function play(ch, viaProxy) {
     current = ch;
+    currentViaProxy = !!viaProxy;
     currentLines = channels.filter(function (c) { return c.name === ch.name; });
     currentLineIdx = Math.max(0, currentLines.indexOf(ch));
     playerError.hidden = true;
     document.getElementById('liveBadge').hidden = false;
     destroyHls();
-    var url = ch.url;
+    var url = viaProxy ? proxyUrl(ch.url) : ch.url;
     document.getElementById('npName').textContent = ch.name;
-    document.getElementById('npMeta').textContent = ch.group + (ch.tvgId ? ' · ' + ch.tvgId : '');
+    document.getElementById('npMeta').textContent = ch.group + (ch.tvgId ? ' · ' + ch.tvgId : '') + (viaProxy ? ' · via proxy' : '');
     var logoEl = document.getElementById('npLogo');
     if (ch.logo) { logoEl.src = ch.logo; logoEl.hidden = false; } else { logoEl.hidden = true; }
     renderLineBox();
@@ -246,14 +250,20 @@
       hls.on(Hls.Events.ERROR, function (ev, data) {
         if (!data.fatal) return;
         if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-          showPlayerError('Server stream menolak koneksi dari browser (kemungkinan CORS) atau sedang mati.');
+          if (!viaProxy) {
+            // Direct gagal (CORS / mixed content / mati) -> coba lewat proxy.
+            document.getElementById('npMeta').textContent = 'Mencoba lewat proxy…';
+            setTimeout(function () { play(current, true); }, 100);
+          } else {
+            showPlayerError('Server stream menolak koneksi dari browser (kemungkinan CORS) atau sedang mati. Proxy juga gagal.');
+          }
         } else {
           showPlayerError('Format stream tidak didukung (' + (data.details || data.type) + ').');
         }
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
-      video.play().catch(function () { showPlayerError('Browser gagal memutar stream ini.'); });
+      video.play().catch(function () {}); // gagal jaringan ditangani listener 'error' di bawah
     } else {
       showPlayerError('Browser ini tidak mendukung HLS.');
     }
@@ -368,7 +378,15 @@
   });
   document.getElementById('epgBtn').addEventListener('click', loadEpg);
   video.addEventListener('error', function () {
-    if (video.error) showPlayerError('Video error: ' + (video.error.message || video.error.code));
+    if (!video.error) return;
+    if (hls) return; // kalau hls.js aktif, error ditangani handler Hls.Events.ERROR
+    if (!current) { showPlayerError('Video error: ' + (video.error.message || video.error.code)); return; }
+    if (!currentViaProxy) {
+      document.getElementById('npMeta').textContent = 'Mencoba lewat proxy…';
+      setTimeout(function () { play(current, true); }, 100);
+    } else {
+      showPlayerError('Server stream menolak koneksi dari browser (kemungkinan CORS) atau sedang mati. Proxy juga gagal.');
+    }
   });
 
   // ---------- init ----------
